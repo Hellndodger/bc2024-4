@@ -1,26 +1,26 @@
-const { program } = require('commander');
-const http = require('http');
-const fs = require('fs').promises; 
-const path = require('path');
-const superagent = require('superagent');
+let { program } = require('commander');
+let http = require('http');
+let fs = require('fs').promises; 
+let path = require('path');
+let superagent = require('superagent');
 
 program
-  .requiredOption('-h, --host <address>', 'адреса сервера')
-  .requiredOption('-p, --port <number>', 'порт сервера')
-  .requiredOption('-c, --cache <path>', 'шлях до директорії, яка міститиме закешовані файли');
+  .requiredOption('-h, --host <address>', 'address port')
+  .requiredOption('-p, --port <number>', 'port of the server')
+  .requiredOption('-c, --cache <path>', 'path to the directory that contins the files');
 
 program.parse(process.argv);
 
-const options = program.opts();
+let options = program.opts();
 
-const requestListener = async function (req, res) {
-  const filePath = path.join(options.cache, req.url + ".jpg");
+let requestListener = async function (req, res) {
+  let filePath = path.join(options.cache, req.url + ".jpg");
 
   switch(req.method){
     case 'GET':
       fs.readFile(filePath)
       .then(content => {
-        console.log('Картинку взято з кешу');
+        console.log('Image has been taken from the cache,success');
         res.setHeader("Content-Type", "image/jpeg");
         res.writeHead(200);
         res.end(content);
@@ -34,7 +34,7 @@ const requestListener = async function (req, res) {
           res.writeHead(200);
           res.end(content.body);
         } catch (err) {
-          console.log('Запит закінчився помилкою');
+          console.log('Request ended with an error unfortunetely');
           console.log(err);
           res.writeHead(404);
           res.end();
@@ -55,12 +55,12 @@ const requestListener = async function (req, res) {
         .then(() => {
           res.setHeader("Content-Type", "text/plain");
           res.writeHead(201);
-          res.end('Image saved successfully.');
+          res.end('Image saved successfully slava bohu.');
         })
         .catch(err => {
-          console.error('Error saving image:', err);
+          console.error('Error saving image: damn', err);
           res.writeHead(500);
-          res.end('Error saving image.');
+          res.end('Error saving image oops someone wrote shitty code(me).');
         });
       });
 
@@ -78,7 +78,7 @@ const requestListener = async function (req, res) {
         res.end('Image deleted successfully.');
       })
       .catch(() => {
-        console.error('No picture in cache:', filePath);
+        console.error('No picture in cache: same as in your future oohh', filePath);
         res.writeHead(404);
         res.end();
       });
@@ -91,7 +91,7 @@ const requestListener = async function (req, res) {
   }
 };
 
-const server = http.createServer(requestListener);
+let server = http.createServer(requestListener);
 
 server.listen(options.port, options.host, () => {
   console.log(`Server is listening on http://${options.host}:${options.port}`);
